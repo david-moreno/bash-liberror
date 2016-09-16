@@ -1,0 +1,62 @@
+# liberror - A Bash library for error messages handling
+# Copyright (C) 2016  David Moreno
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+[[ -z $__liberror_version__ ]] && {
+__liberror_version__="1.0.0"
+
+declare -a __err_values__
+declare -a __err_keys__
+
+function err_set_values {
+	__err_values__=("$@")
+}
+
+function err_set_keys {
+	__err_keys__=("$@")
+}
+
+function err_get_value {
+	local key=`__err_get_index__ $1`
+	[[ $key -lt 0 ]] && return
+	echo "${__err_values__[$key]}"
+}
+
+function __err_get_index__ {
+	for i in ${!__err_keys__[@]}; do
+		[[ ${__err_keys__[$i]} == "$1" ]] && { echo $i; return; }
+	done
+	echo -1
+}
+
+function err_print_error {
+	local key=`__err_get_index__ $1`
+	[[ $key -lt 0 ]] && return
+	>&2 echo "ERROR: ${__err_values__[$key]}"
+}
+
+function err_print_warning {
+	local key=`__err_get_index__ $1`
+	[[ $key -lt 0 ]] && return
+	>&2 echo "WARNING: ${__err_values__[$key]}"
+}
+
+function err_print_fatal {
+	local key=`__err_get_index__ $1`
+	[[ $key -lt 0 ]] && return
+	>&2 echo "FATAL: ${__err_values__[$key]}"
+}
+
+} #Guard end
